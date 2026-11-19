@@ -1,0 +1,73 @@
+:root {
+  --bg: #f6f7f9; --panel: #fff; --text: #1d2129; --muted: #6b7280; --line: #e3e6ea;
+  --accent: #5b5bd6; --danger: #c93c3c; --ok: #2f8f5b; --warn: #b7791f;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #15171c; --panel: #1e2128; --text: #e6e8ec; --muted: #9aa1ad; --line: #30343d;
+    --accent: #8b8bf0; --danger: #ef6b6b; --ok: #5cc48a; --warn: #e0a84a; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+input, select, textarea, button { font: inherit; color: inherit; }
+input[type=text], input[type=url], input[type=search], input[type=password], input[type=date], select, textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+textarea { resize: vertical; }
+button { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); cursor: pointer; }
+button:disabled, input:disabled { opacity: .5; cursor: not-allowed; }
+button.primary, .add button { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--danger); }
+a { color: var(--accent); }
+
+.bar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar h1 { margin: 0; font-size: 18px; }
+#status { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; }
+#status.error, .error { color: var(--danger); }
+.actions { display: flex; gap: 6px; }
+
+main { max-width: 860px; margin: 0 auto; padding: 16px; }
+.add { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 12px; }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.filters input[type=search] { flex: 1 1 200px; width: auto; }
+.filters select { width: auto; }
+#count { color: var(--muted); font-size: 13px; margin-left: auto; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.card.open { border-color: var(--accent); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: 100%; padding: 12px 14px;
+  border: 0; border-radius: 0; background: none; text-align: left; }
+.title { flex: 1 1 200px; font-weight: 600; overflow-wrap: anywhere; }
+.badge { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.badge.st0 { color: var(--muted); }
+.badge.st1 { color: var(--warn); border-color: var(--warn); }
+.badge.st2 { color: var(--ok); border-color: var(--ok); }
+.badge.pub { color: #fff; background: var(--accent); border-color: var(--accent); }
+.badge.todo.open { color: var(--danger); border-color: var(--danger); }
+
+.detail { display: grid; gap: 12px; padding: 4px 14px 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.field { display: grid; gap: 4px; }
+.field > span { font-size: 13px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+.check { display: inline-flex; align-items: center; gap: 6px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.spacer { flex: 1; }
+.hint { font-size: 12px; color: var(--muted); }
+.empty { text-align: center; color: var(--muted); padding: 32px 0; }
+
+.todos { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.todos li { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; }
+.todos li.done input[type=text] { text-decoration: line-through; color: var(--muted); }
+.todo-add { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
+button.icon { padding: 4px 10px; }
+
+dialog { width: min(480px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); padding: 20px; }
+dialog::backdrop { background: rgb(0 0 0 / .4); }
+dialog form { display: grid; gap: 10px; }
+dialog h2 { margin: 0 0 4px; font-size: 18px; }
+
+@media (max-width: 600px) {
+  .add { grid-template-columns: 1fr; }
+  .actions button { padding: 6px 10px; }
+}

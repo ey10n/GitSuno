@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://api.github.com; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>GitSuno</title>
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <h1>GitSuno</h1>
+  <span id="status" role="status"></span>
+  <div class="actions">
+    <button id="btn-reload" type="button">再読込</button>
+    <button id="btn-export" type="button">エクスポート</button>
+    <button id="btn-settings" type="button">設定</button>
+  </div>
+</header>
+
+<main>
+  <form id="add-form" class="add">
+    <input id="add-url" type="url" placeholder="Sunoの共有リンクを貼り付け" required autocomplete="off">
+    <input id="add-title" type="text" placeholder="曲名(任意)" autocomplete="off">
+    <button type="submit">追加</button>
+  </form>
+
+  <section class="filters">
+    <input id="f-q" type="search" placeholder="検索(曲名・メモ・ToDo)">
+    <select id="f-status"><option value="">状態: すべて</option></select>
+    <select id="f-pub">
+      <option value="">公開: すべて</option>
+      <option value="yes">公開済み</option>
+      <option value="no">未公開</option>
+    </select>
+    <label class="check"><input id="f-todo" type="checkbox"> 未完了ToDoあり</label>
+    <span id="count"></span>
+  </section>
+
+  <div id="list"></div>
+</main>
+
+<dialog id="settings">
+  <form id="settings-form">
+    <h2>設定</h2>
+    <label class="field"><span>データ用リポジトリの所有者</span><input id="s-owner" type="text" required autocomplete="off" placeholder="your-github-name"></label>
+    <label class="field"><span>データ用リポジトリ名(非公開)</span><input id="s-repo" type="text" required autocomplete="off" placeholder="gitsuno-data"></label>
+    <label class="field"><span>ブランチ</span><input id="s-branch" type="text" required autocomplete="off" value="main"></label>
+    <label class="field"><span>ファイルパス</span><input id="s-path" type="text" required autocomplete="off" value="data/songs.json"></label>
+    <label class="field"><span>Fine-grained アクセストークン</span><input id="s-token" type="password" autocomplete="off" placeholder="github_pat_..."></label>
+    <label class="check"><input id="s-remember" type="checkbox"> この端末にトークンを記憶する(共用PCではオフ)</label>
+    <p class="hint">トークンはこのブラウザ内にのみ保存され、GitHub API以外には送信されません。権限は「データ用リポジトリのみ / Contents: Read and write」に限定してください。</p>
+    <div class="row">
+      <button id="btn-forget" type="button" class="danger">トークンを削除</button>
+      <span class="spacer"></span>
+      <button id="btn-cancel" type="button">閉じる</button>
+      <button type="submit" class="primary">保存して接続</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>
