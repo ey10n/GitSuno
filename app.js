@@ -122,6 +122,7 @@
       key: KEYS.includes(s.key) ? s.key : '',
       vocal: VOCALS.includes(s.vocal) ? s.vocal : '',
       genres: GENRES.filter((g) => genres.includes(g)),
+      genreOther: String(s.genreOther || ''),
       status: STATUSES.includes(s.status) ? s.status : STATUSES[1],
       published: !!s.published,
       publishedAt: String(s.publishedAt || ''),
@@ -243,7 +244,7 @@
       if (f.pub === 'no' && s.published) return false;
       if (f.todo && !s.todos.some((t) => !t.done)) return false;
       if (q) {
-        const hay = [s.title, s.original, s.key, s.vocal, ...s.genres, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
+        const hay = [s.title, s.original, s.key, s.vocal, ...s.genres, s.genreOther, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -262,7 +263,7 @@
       onclick: () => { state.openId = open ? null : s.id; render(); },
     },
       titleEl,
-      ...[s.key, s.vocal, ...s.genres].filter(Boolean).map((t) => el('span', { class: 'badge', text: t })),
+      ...[s.key, s.vocal, ...s.genres.map((g) => (g === 'その他' && s.genreOther.trim() ? s.genreOther.trim() : g))].filter(Boolean).map((t) => el('span', { class: 'badge', text: t })),
       el('span', { class: `badge st${STATUSES.indexOf(s.status)}`, text: s.status }),
       s.published ? el('span', { class: 'badge pub', text: '公開済' }) : null,
       s.todos.length ? el('span', { class: 'badge todo' + (remain ? ' open' : ''), text: `ToDo ${s.todos.length - remain}/${s.todos.length}` }) : null,
@@ -302,6 +303,13 @@
     };
     todoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); addTodo(); } });
 
+    const setGenre = (g, on, rerender = true) => {
+      const set = new Set(s.genres);
+      if (on) set.add(g); else set.delete(g);
+      s.genres = GENRES.filter((x) => set.has(x));
+      touch(rerender);
+    };
+
     return el('div', { class: 'detail' },
       el('div', { class: 'row' },
         valid ? el('a', { href: valid.url, target: '_blank', rel: 'noopener noreferrer', text: 'Sunoで開く ↗' }) : el('span', { class: 'error', text: '無効なURL' }),
@@ -317,12 +325,18 @@
         ),
         el('div', { class: 'field' }, el('span', { text: 'ジャンル(複数選択可)' }),
           el('div', { class: 'row genres' }, ...GENRES.map((g) => el('label', { class: 'check' },
-            el('input', { type: 'checkbox', checked: s.genres.includes(g), onchange: (e) => {
-              const set = new Set(s.genres);
-              if (e.target.checked) set.add(g); else set.delete(g);
-              s.genres = GENRES.filter((x) => set.has(x));
-              touch(true);
-            } }), ' ' + g)))),
+            el('input', { type: 'checkbox', checked: s.genres.includes(g), onchange: (e) => setGenre(g, e.target.checked) }), ' ' + g)),
+            el('input', { type: 'text', class: 'genre-other', value: s.genreOther, placeholder: 'その他の内容', 'aria-label': 'その他のジャンル',
+              oninput: (e) => {
+                s.genreOther = e.target.value;
+                // 入力したら「その他」に自動でチェック
+                if (s.genreOther.trim() && !s.genres.includes('その他')) {
+                  const cb = e.target.previousElementSibling.querySelector('input');
+                  cb.checked = true;
+                  setGenre('その他', true, false);
+                } else touch();
+              },
+            }))),
       ),
       field('共有リンク', urlInput),
       el('div', { class: 'grid' },

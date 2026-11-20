@@ -53,6 +53,7 @@ main { max-width: 860px; margin: 0 auto; padding: 16px; }
 fieldset.mood { margin: 0; padding: 10px 12px 12px; border: 1px solid var(--line); border-radius: 8px; gap: 10px; }
 fieldset.mood legend { padding: 0 4px; font-size: 13px; color: var(--muted); }
 .genres { gap: 6px 14px; }
+.genres input.genre-other { flex: 1 1 160px; width: auto; margin-left: -8px; }
 .check { display: inline-flex; align-items: center; gap: 6px; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .spacer { flex: 1; }
