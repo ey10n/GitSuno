@@ -107,6 +107,8 @@
       id: String(s.id || crypto.randomUUID()),
       url: String(s.url || ''),
       title: String(s.title || ''),
+      original: String(s.original || ''),
+      mood: String(s.mood || ''),
       status: STATUSES.includes(s.status) ? s.status : STATUSES[1],
       published: !!s.published,
       publishedAt: String(s.publishedAt || ''),
@@ -228,7 +230,7 @@
       if (f.pub === 'no' && s.published) return false;
       if (f.todo && !s.todos.some((t) => !t.done)) return false;
       if (q) {
-        const hay = [s.title, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
+        const hay = [s.title, s.original, s.mood, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -247,6 +249,7 @@
       onclick: () => { state.openId = open ? null : s.id; render(); },
     },
       titleEl,
+      s.mood ? el('span', { class: 'badge', text: s.mood }) : null,
       el('span', { class: `badge st${STATUSES.indexOf(s.status)}`, text: s.status }),
       s.published ? el('span', { class: 'badge pub', text: '公開済' }) : null,
       s.todos.length ? el('span', { class: 'badge todo' + (remain ? ' open' : ''), text: `ToDo ${s.todos.length - remain}/${s.todos.length}` }) : null,
@@ -292,6 +295,11 @@
         valid && valid.key.startsWith('s:') ? el('span', { class: 'hint', text: '短縮リンクです。開いた先の /song/... のURLに置き換えると重複判定が確実になります' }) : null,
       ),
       field('曲名', el('input', { type: 'text', value: s.title, oninput: (e) => { s.title = e.target.value; titleEl.textContent = s.title || '(無題)'; touch(); } })),
+      el('div', { class: 'grid' },
+        field('元曲', el('input', { type: 'text', value: s.original, oninput: (e) => { s.original = e.target.value; touch(); } })),
+        field('曲調', el('input', { type: 'text', value: s.mood, list: 'mood-list', placeholder: '例: バラード、ロック、明るい', oninput: (e) => { s.mood = e.target.value; touch(); } })),
+      ),
+      moodList(),
       field('共有リンク', urlInput),
       el('div', { class: 'grid' },
         field('状態', el('select', { onchange: (e) => { s.status = e.target.value; touch(true); } },
@@ -321,6 +329,12 @@
         } }),
       ),
     );
+  }
+
+  // 曲調の入力候補(登録済みの値から)
+  function moodList() {
+    const moods = [...new Set(state.songs.filter((x) => !x.deleted && x.mood.trim()).map((x) => x.mood.trim()))].sort();
+    return el('datalist', { id: 'mood-list' }, ...moods.map((m) => el('option', { value: m })));
   }
 
   // ---------- 設定ダイアログ ----------
