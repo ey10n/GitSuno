@@ -4,6 +4,9 @@
   if (window.top !== window.self) { document.documentElement.textContent = ''; return; }
 
   const STATUSES = ['アイデア', '制作中', '完成'];
+  const KEYS = ['メジャー', 'マイナー'];
+  const VOCALS = ['男性', '女性'];
+  const GENRES = ['ジャズ', 'ロック', 'アコースティック', 'バラード', 'その他'];
   const LS_CFG = 'gitsuno.config';
   const KEY_TOKEN = 'gitsuno.token';
   const API = 'https://api.github.com';
@@ -103,18 +106,28 @@
 
   function normalize(s) {
     if (s.deleted) return { id: String(s.id), deleted: true, updatedAt: String(s.updatedAt || '') };
+    let genres = Array.isArray(s.genres) ? s.genres.filter((g) => GENRES.includes(g)) : [];
+    let memo = String(s.memo || '');
+    // 旧形式(曲調を自由入力していた頃)の値を移行。一致しない文字はメモに残す
+    const oldMood = String(s.mood || '').trim();
+    if (oldMood && !Array.isArray(s.genres)) {
+      genres = GENRES.filter((g) => oldMood.includes(g));
+      memo = memo ? `${memo}\n曲調(旧): ${oldMood}` : `曲調(旧): ${oldMood}`;
+    }
     return {
       id: String(s.id || crypto.randomUUID()),
       url: String(s.url || ''),
       title: String(s.title || ''),
       original: String(s.original || ''),
-      mood: String(s.mood || ''),
+      key: KEYS.includes(s.key) ? s.key : '',
+      vocal: VOCALS.includes(s.vocal) ? s.vocal : '',
+      genres: GENRES.filter((g) => genres.includes(g)),
       status: STATUSES.includes(s.status) ? s.status : STATUSES[1],
       published: !!s.published,
       publishedAt: String(s.publishedAt || ''),
       publishedWhere: String(s.publishedWhere || ''),
       todos: Array.isArray(s.todos) ? s.todos.map((t) => ({ id: String(t.id || crypto.randomUUID()), text: String(t.text || ''), done: !!t.done })) : [],
-      memo: String(s.memo || ''),
+      memo,
       createdAt: String(s.createdAt || now()),
       updatedAt: String(s.updatedAt || now()),
     };
@@ -230,7 +243,7 @@
       if (f.pub === 'no' && s.published) return false;
       if (f.todo && !s.todos.some((t) => !t.done)) return false;
       if (q) {
-        const hay = [s.title, s.original, s.mood, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
+        const hay = [s.title, s.original, s.key, s.vocal, ...s.genres, s.memo, s.url, s.publishedWhere, ...s.todos.map((t) => t.text)].join('\n').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -249,7 +262,7 @@
       onclick: () => { state.openId = open ? null : s.id; render(); },
     },
       titleEl,
-      s.mood ? el('span', { class: 'badge', text: s.mood }) : null,
+      ...[s.key, s.vocal, ...s.genres].filter(Boolean).map((t) => el('span', { class: 'badge', text: t })),
       el('span', { class: `badge st${STATUSES.indexOf(s.status)}`, text: s.status }),
       s.published ? el('span', { class: 'badge pub', text: '公開済' }) : null,
       s.todos.length ? el('span', { class: 'badge todo' + (remain ? ' open' : ''), text: `ToDo ${s.todos.length - remain}/${s.todos.length}` }) : null,
@@ -295,11 +308,22 @@
         valid && valid.key.startsWith('s:') ? el('span', { class: 'hint', text: '短縮リンクです。開いた先の /song/... のURLに置き換えると重複判定が確実になります' }) : null,
       ),
       field('曲名', el('input', { type: 'text', value: s.title, oninput: (e) => { s.title = e.target.value; titleEl.textContent = s.title || '(無題)'; touch(); } })),
-      el('div', { class: 'grid' },
-        field('元曲', el('input', { type: 'text', value: s.original, oninput: (e) => { s.original = e.target.value; touch(); } })),
-        field('曲調', el('input', { type: 'text', value: s.mood, list: 'mood-list', placeholder: '例: バラード、ロック、明るい', oninput: (e) => { s.mood = e.target.value; touch(); } })),
+      field('元曲', el('input', { type: 'text', value: s.original, oninput: (e) => { s.original = e.target.value; touch(); } })),
+      el('fieldset', { class: 'field mood' },
+        el('legend', { text: '曲調' }),
+        el('div', { class: 'grid' },
+          field('キー', choice(KEYS, s.key, (v) => { s.key = v; touch(true); })),
+          field('ボーカル', choice(VOCALS, s.vocal, (v) => { s.vocal = v; touch(true); })),
+        ),
+        el('div', { class: 'field' }, el('span', { text: 'ジャンル(複数選択可)' }),
+          el('div', { class: 'row genres' }, ...GENRES.map((g) => el('label', { class: 'check' },
+            el('input', { type: 'checkbox', checked: s.genres.includes(g), onchange: (e) => {
+              const set = new Set(s.genres);
+              if (e.target.checked) set.add(g); else set.delete(g);
+              s.genres = GENRES.filter((x) => set.has(x));
+              touch(true);
+            } }), ' ' + g)))),
       ),
-      moodList(),
       field('共有リンク', urlInput),
       el('div', { class: 'grid' },
         field('状態', el('select', { onchange: (e) => { s.status = e.target.value; touch(true); } },
@@ -331,10 +355,11 @@
     );
   }
 
-  // 曲調の入力候補(登録済みの値から)
-  function moodList() {
-    const moods = [...new Set(state.songs.filter((x) => !x.deleted && x.mood.trim()).map((x) => x.mood.trim()))].sort();
-    return el('datalist', { id: 'mood-list' }, ...moods.map((m) => el('option', { value: m })));
+  // 単一選択(未設定あり)
+  function choice(options, value, onChange) {
+    return el('select', { onchange: (e) => onChange(e.target.value) },
+      el('option', { value: '', text: '未設定' }),
+      ...options.map((o) => { const op = el('option', { value: o, text: o }); op.selected = o === value; return op; }));
   }
 
   // ---------- 設定ダイアログ ----------
