@@ -15,6 +15,7 @@
   <h1>GitSuno</h1>
   <span id="status" role="status"></span>
   <div class="actions">
+    <a class="btn" href="guide.html">はじめての方へ</a>
     <button id="btn-reload" type="button">再読込</button>
     <button id="btn-export" type="button">エクスポート</button>
     <button id="btn-settings" type="button">設定</button>
@@ -46,6 +47,7 @@
 <dialog id="settings">
   <form id="settings-form">
     <h2>設定</h2>
+    <p class="settings-guide">初めての方は <a href="guide.html" target="_blank" rel="noopener noreferrer">はじめての方へ(設定手順)</a> をご覧ください。</p>
     <label class="field"><span>データ用リポジトリの所有者</span><input id="s-owner" type="text" required autocomplete="off" placeholder="your-github-name"></label>
     <label class="field"><span>データ用リポジトリ名(非公開)</span><input id="s-repo" type="text" required autocomplete="off" placeholder="gitsuno-data"></label>
     <label class="field"><span>ブランチ</span><input id="s-branch" type="text" required autocomplete="off" value="main"></label>

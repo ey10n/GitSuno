@@ -25,7 +25,7 @@ a { color: var(--accent); }
 .bar h1 { margin: 0; font-size: 18px; }
 #status { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; }
 #status.error, .error { color: var(--danger); }
-.actions { display: flex; gap: 6px; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
 main { max-width: 860px; margin: 0 auto; padding: 16px; }
 .add { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 12px; }
@@ -71,7 +71,29 @@ dialog::backdrop { background: rgb(0 0 0 / .4); }
 dialog form { display: grid; gap: 10px; }
 dialog h2 { margin: 0 0 4px; font-size: 18px; }
 
+a.btn { display: inline-block; padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: inherit; text-decoration: none; }
+a.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.settings-guide { margin: 0; font-size: 13px; }
+
+.guide h2 { margin: 8px 0 4px; font-size: 24px; }
+.guide h3 { margin: 28px 0 8px; font-size: 17px; }
+.guide .lead { font-size: 16px; }
+.guide li { margin: 6px 0; }
+.guide code { padding: 1px 6px; border-radius: 4px; background: var(--line); font-size: .92em; overflow-wrap: anywhere; }
+.guide .note { margin: 20px 0; padding: 4px 16px; border: 1px solid var(--accent); border-radius: 10px; background: var(--panel); }
+.guide .note h3 { margin-top: 12px; }
+.guide .warn { display: inline-block; margin-top: 2px; font-size: 13px; color: var(--danger); }
+.guide .steps { padding: 0; list-style: none; counter-reset: step; }
+.guide .steps > li { counter-increment: step; margin: 16px 0; padding: 4px 16px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.guide .steps > li > h3::before { content: "手順" counter(step) " "; color: var(--accent); }
+.guide .steps > li > h3 { margin-top: 12px; }
+.guide table { width: 100%; margin: 8px 0; border-collapse: collapse; font-size: 14px; }
+.guide th, .guide td { padding: 6px 8px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.guide th { width: 45%; font-weight: 600; }
+.guide .faq dt { margin-top: 12px; font-weight: 600; }
+.guide .faq dd { margin: 4px 0 0 1em; }
+
 @media (max-width: 600px) {
   .add { grid-template-columns: 1fr; }
-  .actions button { padding: 6px 10px; }
+  .actions button, .actions a.btn { padding: 6px 10px; }
 }
